@@ -1,0 +1,46 @@
+[tool.poetry]
+name = "file_iter"
+version = "0.1.0"
+description = "A Swiss Army knife iterator for files (or any iterator of strings)"
+authors = ["Jonathon Vandezande"]
+keywords = []
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/jevandezande/file_iter"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+
+[tool.poetry.group.dev.dependencies]
+mypy = "*"
+pre-commit = "*"
+ruff = ">=0.3.0"
+
+[tool.poetry.group.test.dependencies]
+pytest = "*"
+pytest-cov = "*"
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+]
+
+[tool.mypy]
+files = ["file_iter"]
+strict = true
+pretty = true
+
+[tool.pytest.ini_options]
+testpaths = ["file_iter"]
+addopts = "--doctest-modules"
+doctest_optionflags = "NORMALIZE_WHITESPACE"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

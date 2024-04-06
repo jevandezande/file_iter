@@ -3,7 +3,6 @@ from collections import deque
 from pathlib import Path
 from typing import Any, Callable, Iterable, Iterator, Literal, TypeVar, overload
 
-T = TypeVar("T")
 D = TypeVar("D", bound=Any)
 _marker: Any = object()
 
@@ -107,13 +106,13 @@ class FileIter(Iterator[str]):
     def filtered_next(self, filter_func: Callable[[str], bool]) -> str: ...
 
     @overload
-    def filtered_next(self, filter_func: Callable[[str], bool], default: T) -> str | T: ...
+    def filtered_next(self, filter_func: Callable[[str], bool], default: D) -> str | D: ...
 
     def filtered_next(
         self,
         filter_func: Callable[[str], bool],
-        default: str | T = _marker,
-    ) -> str | T:
+        default: str | D = _marker,
+    ) -> str | D:
         """
         Get the next element in the iterator that passes the filter function
 

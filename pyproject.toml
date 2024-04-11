@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "file_iter"
-version = "0.1.0"
+version = "0.1.1"
 description = "A Swiss Army knife iterator for files (or any iterator of strings)"
 authors = ["Jonathon Vandezande"]
 keywords = []
@@ -9,7 +9,7 @@ readme = "README.md"
 repository = "https://github.com/jevandezande/file_iter"
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = ">=3.12"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "*"

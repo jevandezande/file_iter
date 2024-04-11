@@ -1,9 +1,8 @@
 import itertools
 from collections import deque
 from pathlib import Path
-from typing import Any, Callable, Iterable, Iterator, Literal, TypeVar, overload
+from typing import Any, Callable, Iterable, Iterator, Literal, overload
 
-D = TypeVar("D", bound=Any)
 _marker: Any = object()
 
 
@@ -106,13 +105,15 @@ class FileIter(Iterator[str]):
     def filtered_next(self, filter_func: Callable[[str], bool]) -> str: ...
 
     @overload
-    def filtered_next(self, filter_func: Callable[[str], bool], default: D) -> str | D: ...
+    def filtered_next(
+        self, filter_func: Callable[[str], bool], default: object
+    ) -> str | object: ...
 
     def filtered_next(
         self,
         filter_func: Callable[[str], bool],
-        default: str | D = _marker,
-    ) -> str | D:
+        default: str | object = _marker,
+    ) -> str | object:
         """
         Get the next element in the iterator that passes the filter function
 
@@ -208,9 +209,9 @@ class FileIter(Iterator[str]):
     def peek(self) -> str: ...
 
     @overload
-    def peek(self, default: D) -> D | str: ...
+    def peek(self, default: object) -> object | str: ...
 
-    def peek(self, default: D = _marker) -> D | str:
+    def peek(self, default: object = _marker) -> object | str:
         """
         Get the next element in the iterator without consuming it
 

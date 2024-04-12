@@ -18,7 +18,7 @@ A Swiss Army knife iterator for files (or any iterator of strings)
     - Always filter: `FileIter(f, filter_func=is_data)`
     - Filter only single next(): `filter_next(filter_func)`
 
-```
+```python
 >>> def is_data(line: str) -> bool:
 ...    return len(line) > 0 and (line[0] != "#")
 >>> my_iter = FileIter(

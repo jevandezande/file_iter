@@ -289,11 +289,12 @@ class FileIterContextManager:
     ...     _ = f.seek(0)
     ...
     ...     with FileIterContextManager(f.name, filter_func=is_data) as my_iter:
+    ...         _ = next(my_iter), next(my_iter)
     ...         my_iter.jump(-1)
     Traceback (most recent call last):
     ...
     IndexError: Can only jump forward
-    Error reading ... at line=-1
+    Error reading ... at line=3
     """
 
     def __init__(
@@ -303,18 +304,19 @@ class FileIterContextManager:
         filter_func: Callable[[str], bool] | None = None,
     ) -> None:
         self.filename = Path(filename)
-        self.position = position
+        self.start_position = position
         self.filter_func = filter_func
 
     def __enter__(self) -> FileIter:
         self.file = open(self.filename)
-        return FileIter(self.file, self.position, self.filter_func)
+        self.file_iter = FileIter(self.file, self.start_position, self.filter_func)
+        return self.file_iter
 
     def __exit__(
         self, exc_type: type | None, exc_value: Exception | None, traceback: Any | None
     ) -> Literal[False]:
         if exc_value is not None:
-            exc_value.add_note(f"Error reading {self.filename} at line={self.position}")
+            exc_value.add_note(f"Error reading {self.filename} at line={self.file_iter.position}")
         self.file.close()
         return False
 

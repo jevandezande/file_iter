@@ -1,5 +1,6 @@
 """A Swiss Army knife iterator for files (or any iterator of strings)."""
 
+import gzip
 import itertools
 from collections import deque
 from pathlib import Path
@@ -22,6 +23,7 @@ class FileIter(Iterator[str]):
     - Filter out unimportant lines:
         - Always filter: `FileIter(f, filter_func=is_data)`
         - Filter only single next(): `filter_next(filter_func)`
+    - Supports gzip
 
     >>> def is_data(line:  str) -> bool:
     ...    return len(line) > 0 and (line[0] != "#")
@@ -288,6 +290,16 @@ class FileIterContextManager:
     ...             print(line, file_iter.position)
     Hello 0
     World 3
+    >>> # Test gzipped files
+    >>> with NamedTemporaryFile("w", suffix=".gz", delete=True) as f:
+    ...     with gzip.open(f.name, "wt") as f:
+    ...         _ = f.write("Hello\n# comment\n\nWorld")
+    ...
+    ...     with FileIterContextManager(f.name, filter_func=is_data) as file_iter:
+    ...         for line in file_iter:
+    ...             print(line, file_iter.position)
+    Hello 0
+    World 3
     >>> with NamedTemporaryFile("w", delete=True) as f:  # doctest: +ELLIPSIS
     ...     name = f.name
     ...     _ = f.write("Hello\n# comment\n\nWorld")
@@ -307,14 +319,28 @@ class FileIterContextManager:
         filename: str | Path,
         position: int = -1,
         filter_func: Callable[[str], bool] | None = None,
+        gzipped: bool | Literal["auto"] = "auto",
     ) -> None:
+        """
+        Initialize the FileIterContextManager object.
+
+        :param filename: the name of the file to open
+        :param position: the current position in the file
+        :param filter_func: a function that checks if the line is useful
+        :param gzipped: whether the file is gzipped
+        """
         self.filename = Path(filename)
         self.start_position = position
         self.filter_func = filter_func
+        self.gzipped = gzipped
 
     def __enter__(self) -> FileIter:
         """Open the file and return a FileIter object."""
-        self.file = open(self.filename)
+        filename, gzipped = self.filename, self.gzipped
+        if gzipped == "auto":
+            gzipped = filename.suffix == ".gz"
+
+        self.file = gzip.open(filename, "rt") if gzipped else open(filename)
         self.file_iter = FileIter(self.file, self.start_position, self.filter_func)
         return self.file_iter
 

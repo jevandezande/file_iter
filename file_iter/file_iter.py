@@ -23,27 +23,27 @@ class FileIter(Iterator[str]):
 
     >>> def is_data(line: str) -> bool:
     ...    return len(line) > 0 and (line[0] != "#")
-    >>> my_iter = FileIter(
+    >>> file_iter = FileIter(
     ...     ["Hello", "", "# comment", "World", "How", "are", "you?"],
     ...     filter_func=is_data
     ... )
-    >>> next(my_iter)
+    >>> next(file_iter)
     'Hello'
-    >>> my_iter.peek()  # peek does not respect filter_func
+    >>> file_iter.peek()  # peek does not respect filter_func
     ''
-    >>> next(my_iter)  # skips "" and "# comment"
+    >>> next(file_iter)  # skips "" and "# comment"
     'World'
-    >>> my_iter.position
+    >>> file_iter.position
     3
-    >>> my_iter.current_line
+    >>> file_iter.current_line
     'World'
-    >>> my_iter.jump(3)  # jump does not respect filter_func
+    >>> file_iter.jump(3)  # jump does not respect filter_func
     'you?'
-    >>> my_iter.position
+    >>> file_iter.position
     6
-    >>> my_iter.isempty()
+    >>> file_iter.isempty()
     True
-    >>> my_iter.peek(default="default")
+    >>> file_iter.peek(default="default")
     'default'
     """
 
@@ -73,13 +73,13 @@ class FileIter(Iterator[str]):
         Get the next element in the iterator
 
         Applies the filter function if it exists
-        >>> my_iter = FileIter(["", "# comment", "data"], filter_func=is_data)
-        >>> next(my_iter)
+        >>> file_iter = FileIter(["", "# comment", "data"], filter_func=is_data)
+        >>> next(file_iter)
         'data'
-        >>> my_iter.position
+        >>> file_iter.position
         2
-        >>> my_iter = FileIter(["", "# no", "", "# data"], filter_func=is_data)
-        >>> for line in my_iter:
+        >>> file_iter = FileIter(["", "# no", "", "# data"], filter_func=is_data)
+        >>> for line in file_iter:
         ...     print(line)
         """
         if self._filter_func is None:
@@ -119,13 +119,13 @@ class FileIter(Iterator[str]):
 
         :param filter_func: a function that checks if the line is valid
 
-        >>> my_iter = FileIter(["", "# comment", "hello"])
-        >>> my_iter.filtered_next(is_data)
+        >>> file_iter = FileIter(["", "# comment", "hello"])
+        >>> file_iter.filtered_next(is_data)
         'hello'
-        >>> my_iter = FileIter(["", "# no", "", "# data"])
-        >>> my_iter.filtered_next(is_data, default="default")
+        >>> file_iter = FileIter(["", "# no", "", "# data"])
+        >>> file_iter.filtered_next(is_data, default="default")
         'default'
-        >>> my_iter.filtered_next(is_data)
+        >>> file_iter.filtered_next(is_data)
         Traceback (most recent call last):
         ...
         StopIteration
@@ -146,12 +146,12 @@ class FileIter(Iterator[str]):
 
         Note: -1 indicates the iterator has not been read yet
 
-        >>> my_iter = FileIter(["a", "b", "c"])
-        >>> my_iter.position
+        >>> file_iter = FileIter(["a", "b", "c"])
+        >>> file_iter.position
         -1
-        >>> next(my_iter), next(my_iter)
+        >>> next(file_iter), next(file_iter)
         ('a', 'b')
-        >>> my_iter.position
+        >>> file_iter.position
         1
         """
         return self._position
@@ -161,14 +161,14 @@ class FileIter(Iterator[str]):
         """
         Get the current line in the iterator
 
-        >>> my_iter = FileIter(["a", "b", "c"])
-        >>> my_iter.current_line
+        >>> file_iter = FileIter(["a", "b", "c"])
+        >>> file_iter.current_line
         Traceback (most recent call last):
         ...
         ValueError: Have not read any lines yet
-        >>> next(my_iter), next(my_iter)
+        >>> next(file_iter), next(file_iter)
         ('a', 'b')
-        >>> my_iter.current_line
+        >>> file_iter.current_line
         'b'
         """
         if self._current_line is _marker:
@@ -185,14 +185,14 @@ class FileIter(Iterator[str]):
         :param num: the number of elements to jump forward
         :return: the line n-steps forward
 
-        >>> my_iter = FileIter(["a", "b", "c"])
-        >>> next(my_iter)
+        >>> file_iter = FileIter(["a", "b", "c"])
+        >>> next(file_iter)
         'a'
-        >>> my_iter.jump(2)
+        >>> file_iter.jump(2)
         'c'
-        >>> my_iter.position
+        >>> file_iter.position
         2
-        >>> my_iter.jump(-1)
+        >>> file_iter.jump(-1)
         Traceback (most recent call last):
         ...
         IndexError: Can only jump forward
@@ -220,20 +220,20 @@ class FileIter(Iterator[str]):
         :param default: the value to return if the iterator is empty
         :return: the next element in the iterator
 
-        >>> my_iter = FileIter(["a", "b", "c"], filter_func=lambda x: x != "b")
-        >>> my_iter.peek()
+        >>> file_iter = FileIter(["a", "b", "c"], filter_func=lambda x: x != "b")
+        >>> file_iter.peek()
         'a'
-        >>> my_iter.position
+        >>> file_iter.position
         -1
-        >>> next(my_iter), my_iter.position
+        >>> next(file_iter), file_iter.position
         ('a', 0)
-        >>> my_iter.peek(), my_iter.position
+        >>> file_iter.peek(), file_iter.position
         ('b', 0)
-        >>> next(my_iter)
+        >>> next(file_iter)
         'c'
-        >>> my_iter.peek("default")
+        >>> file_iter.peek("default")
         'default'
-        >>> my_iter.peek()
+        >>> file_iter.peek()
         Traceback (most recent call last):
         ...
         StopIteration
@@ -251,12 +251,12 @@ class FileIter(Iterator[str]):
         """
         Check if the iterator is empty
 
-        >>> my_iter = FileIter(["a", "b", "c"])
-        >>> my_iter.isempty()
+        >>> file_iter = FileIter(["a", "b", "c"])
+        >>> file_iter.isempty()
         False
-        >>> next(my_iter), next(my_iter), next(my_iter)
+        >>> next(file_iter), next(file_iter), next(file_iter)
         ('a', 'b', 'c')
-        >>> my_iter.isempty()
+        >>> file_iter.isempty()
         True
         """
         try:
@@ -278,9 +278,9 @@ class FileIterContextManager:
     ...     _ = f.write("Hello\\n# comment\\n\\nWorld")
     ...     _ = f.seek(0)
     ...
-    ...     with FileIterContextManager(f.name, filter_func=is_data) as my_iter:
-    ...         for line in my_iter:
-    ...             print(line, my_iter.position)
+    ...     with FileIterContextManager(f.name, filter_func=is_data) as file_iter:
+    ...         for line in file_iter:
+    ...             print(line, file_iter.position)
     Hello 0
     World 3
     >>> with NamedTemporaryFile("w") as f:  # doctest: +ELLIPSIS
@@ -288,9 +288,9 @@ class FileIterContextManager:
     ...     _ = f.write("Hello\\n# comment\\n\\nWorld")
     ...     _ = f.seek(0)
     ...
-    ...     with FileIterContextManager(f.name, filter_func=is_data) as my_iter:
-    ...         _ = next(my_iter), next(my_iter)
-    ...         my_iter.jump(-1)
+    ...     with FileIterContextManager(f.name, filter_func=is_data) as file_iter:
+    ...         _ = next(file_iter), next(file_iter)
+    ...         file_iter.jump(-1)
     Traceback (most recent call last):
     ...
     IndexError: Can only jump forward

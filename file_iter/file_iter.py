@@ -279,7 +279,7 @@ class FileIterContextManager:
     Note: contextlib.contextmanager is not used to avoid mypy issues
 
     >>> from tempfile import NamedTemporaryFile
-    >>> with NamedTemporaryFile("w") as f:
+    >>> with NamedTemporaryFile("w", delete=True) as f:
     ...     _ = f.write("Hello\n# comment\n\nWorld")
     ...     _ = f.seek(0)
     ...
@@ -288,7 +288,7 @@ class FileIterContextManager:
     ...             print(line, file_iter.position)
     Hello 0
     World 3
-    >>> with NamedTemporaryFile("w") as f:  # doctest: +ELLIPSIS
+    >>> with NamedTemporaryFile("w", delete=True) as f:  # doctest: +ELLIPSIS
     ...     name = f.name
     ...     _ = f.write("Hello\n# comment\n\nWorld")
     ...     _ = f.seek(0)

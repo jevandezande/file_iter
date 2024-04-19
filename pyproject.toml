@@ -14,7 +14,7 @@ python = ">=3.12"
 [tool.poetry.group.dev.dependencies]
 mypy = "*"
 pre-commit = "*"
-ruff = ">=0.3.0"
+ruff = ">=0.4"
 
 [tool.poetry.group.test.dependencies]
 pytest = "*"
@@ -29,7 +29,11 @@ select = [
     "W",  # pycodestyle warnings
     "F",  # pyflakes
     "I",  # isort
+    "D",  # pydocstyle
 ]
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
 
 [tool.mypy]
 files = ["file_iter"]

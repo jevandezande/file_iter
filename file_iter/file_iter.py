@@ -1,3 +1,5 @@
+"""A Swiss Army knife iterator for files (or any iterator of strings)."""
+
 import itertools
 from collections import deque
 from pathlib import Path
@@ -8,7 +10,7 @@ _marker: Any = object()
 
 class FileIter(Iterator[str]):
     """
-    A Swiss Army knife iterator for files (or any iterator of strings)
+    A Swiss Army knife iterator for files (or any iterator of strings).
 
     - Strips lines
     - Keeps track of the current line: `current_line`
@@ -21,7 +23,7 @@ class FileIter(Iterator[str]):
         - Always filter: `FileIter(f, filter_func=is_data)`
         - Filter only single next(): `filter_next(filter_func)`
 
-    >>> def is_data(line: str) -> bool:
+    >>> def is_data(line:  str) -> bool:
     ...    return len(line) > 0 and (line[0] != "#")
     >>> file_iter = FileIter(
     ...     ["Hello", "", "# comment", "World", "How", "are", "you?"],
@@ -54,6 +56,8 @@ class FileIter(Iterator[str]):
         filter_func: Callable[[str], bool] | None = None,
     ) -> None:
         """
+        Initialize the FileIter object.
+
         :param iterable: an iterable object
         :param position: the current position in the iterable
         :param filter_func: a function that checks if the line is useful, otherwise skips
@@ -66,11 +70,12 @@ class FileIter(Iterator[str]):
         self._position = position
 
     def __iter__(self) -> Iterator[str]:
+        """Iterate over self."""
         return self
 
     def __next__(self) -> str:
         """
-        Get the next element in the iterator
+        Get the next element in the iterator.
 
         Applies the filter function if it exists
         >>> file_iter = FileIter(["", "# comment", "data"], filter_func=is_data)
@@ -92,7 +97,7 @@ class FileIter(Iterator[str]):
 
     def _next(self) -> str:
         """
-        Return the next line and update the position
+        Return the next line and update the position.
 
         Updates the line number only if successful
         """
@@ -115,7 +120,7 @@ class FileIter(Iterator[str]):
         default: str | object = _marker,
     ) -> str | object:
         """
-        Get the next element in the iterator that passes the filter function
+        Get the next element in the iterator that passes the filter function.
 
         :param filter_func: a function that checks if the line is valid
 
@@ -142,7 +147,7 @@ class FileIter(Iterator[str]):
     @property
     def position(self) -> int:
         """
-        Get the current position in the iterator
+        Get the current position in the iterator.
 
         Note: -1 indicates the iterator has not been read yet
 
@@ -159,7 +164,7 @@ class FileIter(Iterator[str]):
     @property
     def current_line(self) -> str:
         """
-        Get the current line in the iterator
+        Get the current line in the iterator.
 
         >>> file_iter = FileIter(["a", "b", "c"])
         >>> file_iter.current_line
@@ -178,7 +183,7 @@ class FileIter(Iterator[str]):
 
     def jump(self, num: int) -> str:
         """
-        Jump forward the specified number of elements in the iterator
+        Jump forward the specified number of elements in the iterator.
 
         Note: jump does not respect the filter function
 
@@ -213,7 +218,7 @@ class FileIter(Iterator[str]):
 
     def peek(self, default: object = _marker) -> object | str:
         """
-        Get the next element in the iterator without consuming it
+        Get the next element in the iterator without consuming it.
 
         Note: peek does not respect the filter function
 
@@ -249,7 +254,7 @@ class FileIter(Iterator[str]):
 
     def isempty(self) -> bool:
         """
-        Check if the iterator is empty
+        Check if the iterator is empty.
 
         >>> file_iter = FileIter(["a", "b", "c"])
         >>> file_iter.isempty()
@@ -267,15 +272,15 @@ class FileIter(Iterator[str]):
 
 
 class FileIterContextManager:
-    """
-    Manage opening and closing a file for iteration
+    r"""
+    Manage opening and closing a file for iteration.
 
     See FileIter for more information
     Note: contextlib.contextmanager is not used to avoid mypy issues
 
     >>> from tempfile import NamedTemporaryFile
     >>> with NamedTemporaryFile("w") as f:
-    ...     _ = f.write("Hello\\n# comment\\n\\nWorld")
+    ...     _ = f.write("Hello\n# comment\n\nWorld")
     ...     _ = f.seek(0)
     ...
     ...     with FileIterContextManager(f.name, filter_func=is_data) as file_iter:
@@ -285,7 +290,7 @@ class FileIterContextManager:
     World 3
     >>> with NamedTemporaryFile("w") as f:  # doctest: +ELLIPSIS
     ...     name = f.name
-    ...     _ = f.write("Hello\\n# comment\\n\\nWorld")
+    ...     _ = f.write("Hello\n# comment\n\nWorld")
     ...     _ = f.seek(0)
     ...
     ...     with FileIterContextManager(f.name, filter_func=is_data) as file_iter:
@@ -308,6 +313,7 @@ class FileIterContextManager:
         self.filter_func = filter_func
 
     def __enter__(self) -> FileIter:
+        """Open the file and return a FileIter object."""
         self.file = open(self.filename)
         self.file_iter = FileIter(self.file, self.start_position, self.filter_func)
         return self.file_iter
@@ -315,6 +321,7 @@ class FileIterContextManager:
     def __exit__(
         self, exc_type: type | None, exc_value: Exception | None, traceback: Any | None
     ) -> Literal[False]:
+        """Close the file and indicate the position if there is an exception."""
         if exc_value is not None:
             exc_value.add_note(f"Error reading {self.filename} at line={self.file_iter.position}")
         self.file.close()
@@ -323,7 +330,7 @@ class FileIterContextManager:
 
 def is_data(line: str) -> bool:
     """
-    Check if the line contains data (presumes it has been stripped)
+    Check if the line contains data (presumes it has been stripped).
 
     >>> is_data("hello")
     True

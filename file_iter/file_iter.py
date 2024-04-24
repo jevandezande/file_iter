@@ -3,8 +3,10 @@
 import gzip
 import itertools
 from collections import deque
+from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, Callable, Iterable, Iterator, Literal, overload
+from tempfile import NamedTemporaryFile
+from typing import IO, Any, Callable, Iterable, Iterator, Literal, overload
 
 _marker: Any = object()
 
@@ -280,33 +282,26 @@ class FileIterContextManager:
     See FileIter for more information
     Note: contextlib.contextmanager is not used to avoid mypy issues
 
-    >>> from tempfile import NamedTemporaryFile
-    >>> with NamedTemporaryFile("w", delete=True) as f:
-    ...     _ = f.write("Hello\n# comment\n\nWorld")
-    ...     _ = f.seek(0)
-    ...
+    Test regular files
+    >>> with tmp_file("Hello\n# comment\n\nWorld") as f:
     ...     with FileIterContextManager(f.name, filter_func=is_data) as file_iter:
     ...         for line in file_iter:
     ...             print(line, file_iter.position)
     Hello 0
     World 3
-    >>> # Test gzipped files
-    >>> with NamedTemporaryFile("w", suffix=".gz", delete=True) as f:
-    ...     with gzip.open(f.name, "wt") as f:
-    ...         _ = f.write("Hello\n# comment\n\nWorld")
-    ...
+
+    Test gzipped files (tmp_file automatically recognizes gzipped files)
+    >>> with tmp_file("Hello\n# comment\n\nWorld", gzipped=True) as f:
     ...     with FileIterContextManager(f.name, filter_func=is_data) as file_iter:
     ...         for line in file_iter:
     ...             print(line, file_iter.position)
     Hello 0
     World 3
-    >>> with NamedTemporaryFile("w", delete=True) as f:  # doctest: +ELLIPSIS
-    ...     name = f.name
-    ...     _ = f.write("Hello\n# comment\n\nWorld")
-    ...     _ = f.seek(0)
-    ...
+
+    Test jumping
+    >>> with tmp_file("Hello\n# comment\n\nWorld") as f:  # doctest: +ELLIPSIS
     ...     with FileIterContextManager(f.name, filter_func=is_data) as file_iter:
-    ...         _ = next(file_iter), next(file_iter)
+    ...         _ = file_iter.jump(2)
     ...         file_iter.jump(-1)
     Traceback (most recent call last):
     ...
@@ -366,3 +361,32 @@ def is_data(line: str) -> bool:
     False
     """
     return len(line) > 0 and (line[0] != "#")
+
+
+@contextmanager  # type: ignore
+def tmp_file(data_str: str, gzipped=False, **kwargs: Any) -> Iterable[IO[str]]:
+    r"""
+    Create a NamedTemporaryFile file with contents `data_str`.
+
+    :param data_str: the string to write to the file
+    :param gzipped: whether to write a gzipped file
+    :param kwargs: additional keyword arguments to pass to NamedTemporaryFile
+    :return: a readable/writable file object
+
+    >>> with tmp_file("Hello\nWorld") as f:
+    ...     for line in f:
+    ...         print(line.strip())
+    Hello
+    World
+    """
+    if gzipped:
+        with NamedTemporaryFile("w+", delete=True, suffix=".gz", **kwargs) as f:
+            with gzip.open(f.name, "wt") as fgz:
+                _ = fgz.write(data_str)
+            yield f
+
+    else:
+        with NamedTemporaryFile("w+", delete=True, **kwargs) as f:
+            _ = f.write(data_str)
+            _ = f.seek(0)
+            yield f

@@ -4,6 +4,7 @@
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/jevandezande/file_iter/test.yml?branch=master&logo=github-actions)](https://github.com/jevandezande/file_iter/actions/)
 [![Codecov](https://img.shields.io/codecov/c/github/jevandezande/file_iter)](https://codecov.io/gh/jevandezande/file_iter)
+[![PyPI version](https://img.shields.io/pypi/v/file_iter)](https://pypi.python.org/pypi/file_iter/)
 
 A Swiss Army knife iterator for files (or any iterator of strings)
 

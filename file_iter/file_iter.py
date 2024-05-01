@@ -127,6 +127,7 @@ class FileIter(Iterator[str]):
         Get the next element in the iterator that passes the filter function.
 
         :param filter_func: a function that checks if the line is valid
+        :yield: the next element in the iterator that passes the filter function
 
         >>> file_iter = FileIter(["", "# comment", "hello"])
         >>> file_iter.filtered_next(is_data)
@@ -371,7 +372,7 @@ def tmp_file(data_str: str, gzipped=False, **kwargs: Any) -> Iterable[IO[str]]:
     :param data_str: the string to write to the file
     :param gzipped: whether to write a gzipped file
     :param kwargs: additional keyword arguments to pass to NamedTemporaryFile
-    :return: a readable/writable file object
+    :yield: a readable/writable file object
 
     >>> with tmp_file("Hello\nWorld") as f:
     ...     for line in f:

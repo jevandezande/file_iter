@@ -46,5 +46,22 @@ True
 'default'
 ```
 
+Opening and closing the file can be performed with a context manager, this even works on gzipped files!
+
+`document.txt`
+```txt
+Hello
+
+# comment
+World
+```
+```python
+>>> with FileIterContextManager("document.txt", filter_func=is_data) as file_iter:
+...     for line in file_iter:
+...         print(line, file_iter.position)
+Hello 0
+World 3
+```
+
 ## Credits
 This package was created with [Cookiecutter](https://github.com/audreyr/cookiecutter) and the [jevandezande/poetry-cookiecutter](https://github.com/jevandezande/poetry-cookiecutter) project template.
